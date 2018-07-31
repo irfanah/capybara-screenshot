@@ -15,11 +15,14 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "capybara-screenshot"
 
-  if RUBY_VERSION < "1.9"
+  if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("1.9")
     s.add_dependency 'capybara', ['>= 1.0', '< 2']
-  else
+  elsif Gem::Version.new(RUBY_VERSION) <= Gem::Version.new("2.2.2")
     s.add_dependency 'capybara', ['>= 1.0', '< 3']
+  else
+    s.add_dependency 'capybara', ['>= 1.0', '< 4']
   end
+
   s.add_dependency 'launchy'
 
   s.add_development_dependency 'rspec'
@@ -30,7 +33,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'test-unit'
   s.add_development_dependency 'spinach'
   s.add_development_dependency 'minitest'
-  s.add_development_dependency 'aws-sdk'
+  s.add_development_dependency 'aws-sdk-s3'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

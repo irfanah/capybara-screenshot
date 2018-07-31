@@ -10,6 +10,7 @@ module Capybara
       attr_writer   :final_session_name
       attr_accessor :prune_strategy
       attr_accessor :s3_configuration
+      attr_accessor :s3_object_configuration
     end
 
     self.autosave_on_failure = true
@@ -20,6 +21,7 @@ module Capybara
     self.webkit_options = {}
     self.prune_strategy = :keep_all
     self.s3_configuration = {}
+    self.s3_object_configuration = {}
 
     def self.append_screenshot_path=(value)
       $stderr.puts "WARNING: Capybara::Screenshot.append_screenshot_path is deprecated. " +
@@ -97,18 +99,18 @@ module Capybara
 
       unless s3_configuration.empty?
         require 'capybara-screenshot/s3_saver'
-        saver = S3Saver.new_with_configuration(saver, s3_configuration)
+        saver = S3Saver.new_with_configuration(saver, s3_configuration, s3_object_configuration)
       end
 
       return saver
     end
 
     def self.after_save_html &block
-      Saver.after_save_html &block
+      Saver.after_save_html(&block)
     end
 
     def self.after_save_screenshot &block
-      Saver.after_save_screenshot &block
+      Saver.after_save_screenshot(&block)
     end
 
     private
@@ -154,9 +156,13 @@ Capybara::Screenshot.class_eval do
     :not_supported
   end
 
-  register_driver(:selenium) do |driver, path|
+  selenium_block = proc do |driver, path|
     driver.browser.save_screenshot(path)
   end
+
+  register_driver :selenium, &selenium_block
+  register_driver :selenium_chrome, &selenium_block
+  register_driver :selenium_chrome_headless, &selenium_block
 
   register_driver(:poltergeist) do |driver, path|
     driver.render(path, :full => true)
